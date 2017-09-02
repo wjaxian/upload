@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+	</head>
+	<body>
+		<dev id="uploadimg"></dev>
+		<div id="imgBox"></div>
+		<script src="Upload.js"></script>
+		<script>
+		//变量接受的是整个Upload对象
+		var upload = Upload("imgBox",{
+				path:"/upload/upload.php",//请求的地址
+	            data:{//往后台传递的参数
+	                savePath:"public"
+	            },
+	            type:"post",//请求方式
+	            addBtnName:"添加图片",//添加文件按钮名字
+	            uploadBtnName:"上传图片",//上传文件按钮名字
+	            delIcon:"删除",//删除已选择文件的图标或按钮名字
+	            autoUpload:false,//是否自动上传
+	            fileNum:5,//上传文件数量
+	            fileSize:1,//上传文件的大小，以MB为单位
+	            isRepeat:false,//是否可以重复选择文件(false->不重复选择)
+	            fileType:['jpg','png','gif','jpeg'],//上传文件的类型
+	            showImgList:true,//是否显示缩略图
+	            uploadSuccess:function(results){//上传成功的回调
+					if(results.code==100){
+						results.results.forEach(function(item){
+							var img = document.createElement("img");
+							img.src = item;
+							document.getElementById("uploadimg").appendChild(img);
+						});
+						//alert(results.msg)
+					}else{
+						alert(results.msg)
+					}
+	            },
+	            uploadError:function(xhr,status){
+					console.log(status)
+					//上传出错的回调
+	            },
+	            delImgFn:function(_this,parentNode,delFile,fileSrc,fileList,filterFile,index){//删除文件前的回调
+	                //下方是删除图片的操作，如需弹窗确定，可在本处执行并复制下列代码至确定事件内
+	                upload.delImg(parentNode,delFile,fileSrc,fileList,filterFile,index);
+	            }
+			});
+
+			console.log(upload)
+	</script>
+	</body>
+</html>
