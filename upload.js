@@ -7,6 +7,14 @@
 ;(function(win,dom){
     function Upload(id,config){
         this.oWrap = dom.querySelector("#"+id);
+        
+         //传进来的参数覆盖默认参数
+        for(var i in config) {
+            if(config.hasOwnProperty(i)) {
+                this.config[i] = config[i];
+            };
+        };
+
         this.init();
         this.fileList = [];
         this.fileSrc = [];
@@ -17,14 +25,6 @@
         this.addNum = 0;
         this.delFile = [];
 
-        //传进来的参数覆盖默认参数
-        for(var i in config) {
-            if(config.hasOwnProperty(i)) {
-                this.config[i] = config[i];
-            };
-        };
-
-        !this.config.autoUpload&&this.uploadBtn();
 
         //添加文件
         this.oFile.addEventListener("change",function(){
@@ -52,9 +52,7 @@
                     _this.fileSrc.splice(index,1);
                     _this.filterFile.splice(index,1);
                     parentNode.parentNode.removeChild(parentNode);
-                    _this.delFile.forEach(function(item){
-                        _this.fileList.push(item);
-                    });
+                   _this.fileList.splice(index,1);
                 }
             }
         });
@@ -66,6 +64,8 @@
             this.oBtnBox = this.createNode("div","upload-btn-box",false,this.oWrap);
             this.oImgBox = this.createNode("div","upload-img-box",false,this.oWrap);
             this.inputFile();
+            //console.log(this.config.autoUpload)
+            !this.config.autoUpload&&this.uploadBtn();
         },
 
         //参数配置项
@@ -118,7 +118,8 @@
                 formData.append('file'+i,item);
                 //_this.filterFile.push(item);
             });
-            //console.log(_this.fileList,_this.filterFile)
+
+           console.log("正在上传的文件：",formData,this.fileList)
             xhr.open(this.config.type,this.config.path+datas,true);
             xhr.send(formData);
             xhr.onreadystatechange=function(){
@@ -138,11 +139,13 @@
         //添加文件方法
         addUploadImg:function(_self,_this){
             _this.imgNum +=_self.files.length;
+          console.log(_this.imgNum)
 
-            if((_this.fileList.length+1)>_this.config.fileNum||_this.imgNum>_this.config.fileNum||_this.oImgBox.children.length>_this.config.fileNum){
+            if(_this.imgNum>_this.config.fileNum){
                 alert('对不起，最多只能上传'+_this.config.fileNum+'张图片，您可以删除几张后重新选择！');
                 _this.oFile.value = "";
                 _this.imgNum = _this.oImgBox.children.length;
+               console.log(_this.imgNum)
                 return false;
             }else if(_self.files.length!=0){
                     var str='';
@@ -165,6 +168,7 @@
                                     var src= window.URL.createObjectURL(_self[i]);
                                     if(!_this.config.isRepeat){
                                         var isRepeat = false;
+                                        console.log( _this.filterFile)
                                         for(var j = 0; j < _this.filterFile.length; j++){
                                             var name = _this.filterFile[j].name;
                                             if(name == _self[i].name){
@@ -191,7 +195,7 @@
 
                         isSize&&(alert("您选择的文件大于"+_this.config.fileSize+"MB"));
                     }
-                    console.log(_this.delFile);
+                   // console.log(_this.delFile);
 
                     //自动上传
                     _this.config.autoUpload&&_this.startUpload();
@@ -208,10 +212,12 @@
             fileSrc.splice(index,1);
             filterFile.splice(index,1);
             parentNode.parentNode.removeChild(parentNode);
-            delFile.forEach(function(item){
-               fileList.push(item);
-            });
-            console.log(fileList,delFile,fileSrc);
+            fileList.splice(index,1);
+            // delFile.forEach(function(item){
+            //    fileList.push(item);
+            // });
+            this.imgNum = fileList.length;
+          //  console.log(fileList,delFile,fileSrc,this.imgNum );
         },
 
         //图片缩略图方法
